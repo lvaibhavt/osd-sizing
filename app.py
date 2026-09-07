@@ -31,7 +31,7 @@ def money(value: float) -> float:
     return float(Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
-def calculate(payload: dict) -> dict:
+def calculate_pool(payload: dict, index: int) -> dict:
     prices = catalog()
     desktops = int(number(payload, "desktops", 1))
     ocpus = number(payload, "ocpus", 1)
@@ -49,23 +49,50 @@ def calculate(payload: dict) -> dict:
     if memory_gb > ocpus * shape["max_memory_per_ocpu"]:
         raise ValueError("Memory exceeds this shape's supported memory-per-OCPU limit.")
 
-    billable_desktops = max(desktops, 10)
     storage_gb_per_desktop = boot_gb + data_gb
-    service = billable_desktops * prices["secure_desktop_monthly"]
     compute = desktops * hours * (ocpus * shape["ocpu_hourly"] + memory_gb * shape["memory_gb_hourly"])
     storage_capacity = desktops * storage_gb_per_desktop * prices["block_volume_gb_monthly"]
     storage_performance = desktops * storage_gb_per_desktop * vpus * prices["block_volume_performance_vpu_gb_monthly"]
-    monthly = service + compute + storage_capacity + storage_performance
-    configured = all(amount > 0 for amount in (shape["ocpu_hourly"], shape["memory_gb_hourly"], prices["block_volume_gb_monthly"], prices["block_volume_performance_vpu_gb_monthly"]))
+    consumption = compute + storage_capacity + storage_performance
     return {
-        "currency": prices["currency"], "region_label": prices["region_label"], "configured": configured,
-        "summary": {"desktops": desktops, "billable_desktops": billable_desktops, "monthly": money(monthly), "annual": money(monthly * 12), "three_year": money(monthly * 36)},
+        "name": str(payload.get("name") or f"Pool {index}").strip(),
+        "desktops": desktops,
+        "consumption": money(consumption),
         "line_items": [
-            {"name": "OCI Secure Desktops service", "monthly": money(service), "detail": f"{billable_desktops} desktop(s) billed (10-desktop minimum)"},
             {"name": "Compute", "monthly": money(compute), "detail": f"{desktops} × {ocpus:g} OCPU, {memory_gb:g} GB × {hours:g} hours"},
             {"name": "Block volume capacity", "monthly": money(storage_capacity), "detail": f"{desktops} × {storage_gb_per_desktop:g} GB (boot + optional desktop storage)"},
             {"name": "Block volume performance", "monthly": money(storage_performance), "detail": f"{desktops} × {storage_gb_per_desktop:g} GB × {vpus:g} VPUs"},
         ],
+    }
+
+
+def calculate(payload: dict) -> dict:
+    prices = catalog()
+    supplied_pools = payload.get("pools")
+    if supplied_pools is not None:
+        if not isinstance(supplied_pools, list) or not supplied_pools:
+            raise ValueError("Add at least one desktop pool.")
+        pools = [calculate_pool(pool, index) for index, pool in enumerate(supplied_pools, start=1)]
+    else:
+        pools = [calculate_pool(payload, 1)]
+
+    desktops = sum(pool["desktops"] for pool in pools)
+    billable_desktops = max(desktops, 10)
+    service = billable_desktops * prices["secure_desktop_monthly"]
+    monthly = service + sum(pool["consumption"] for pool in pools)
+    configured = all(amount > 0 for amount in (
+        *[shape["ocpu_hourly"] for shape in prices["shapes"].values() if shape["ocpu_hourly"]],
+        prices["block_volume_gb_monthly"], prices["block_volume_performance_vpu_gb_monthly"],
+    ))
+    line_items = [{"name": "OCI Secure Desktops service", "monthly": money(service), "detail": f"{billable_desktops} desktop(s) billed across all pools (10-desktop minimum)"}]
+    for pool in pools:
+        for line in pool["line_items"]:
+            line_items.append({**line, "name": f"{pool['name']} — {line['name']}"})
+    return {
+        "currency": prices["currency"], "region_label": prices["region_label"], "configured": configured,
+        "summary": {"desktops": desktops, "billable_desktops": billable_desktops, "monthly": money(monthly), "annual": money(monthly * 12), "three_year": money(monthly * 36)},
+        "pools": pools,
+        "line_items": line_items,
     }
 
 
