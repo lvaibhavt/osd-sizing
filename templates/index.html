@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OCI Secure Desktops Sizer</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Oracle Cloud Infrastructure</p>
+        <h1>Secure Desktops Sizer</h1>
+        <p>Build a transparent OCI Secure Desktops estimate in four simple steps.</p>
+      </header>
+      <div class="layout">
+        <form id="sizer-form" class="card form-card">
+          <div class="form-heading"><div><p class="eyebrow">Pool definition</p><h2>Desktop configuration</h2></div><span class="step-count">4 steps</span></div>
+          <section class="input-block"><div class="block-title"><span>01</span><div><strong>Pool</strong><small>How many desktops and which VM family?</small></div></div><div class="split"><label>Number of desktops <input name="desktops" type="number" min="1" value="50" required></label><label>Shape <select name="shape" id="shape"></select></label></div></section>
+          <section class="input-block"><div class="block-title"><span>02</span><div><strong>Compute</strong><small>Resources allocated to each desktop.</small></div></div><div class="split"><label>OCPUs per desktop <input name="ocpus" type="number" min="1" step="1" value="2" required></label><label>RAM (GB) <input name="memory_gb" type="number" min="1" step="1" value="8" required></label></div></section>
+          <section class="input-block"><div class="block-title"><span>03</span><div><strong>Storage</strong><small>C: drive and its block-volume performance.</small></div></div><div class="split"><label>C: / boot volume (GB) <input name="boot_gb" type="number" min="50" step="1" value="100" required></label><label>Persistent data drive (GB) <input name="data_gb" type="number" min="0" step="1" value="0" required></label></div><label>Block-volume VPUs per GB <select name="vpus"><option value="10">10 — Balanced performance</option><option value="20">20 — Higher performance</option><option value="30">30 — High I/O workload</option><option value="0">0 — Capacity only</option></select></label></section>
+          <section class="input-block"><div class="block-title"><span>04</span><div><strong>Runtime</strong><small>How long desktops are expected to run each month.</small></div></div><label>Running hours per month <input name="hours_per_month" type="number" min="0" max="744" value="730" required></label></section>
+          <button type="submit">Calculate estimate</button>
+        </form>
+        <section class="card result" aria-live="polite">
+          <p class="eyebrow">Estimated run rate</p>
+          <h2 id="monthly">—</h2>
+          <p id="region">Loading price catalog…</p>
+          <div class="totals"><div><span>Annual</span><strong id="annual">—</strong></div><div><span>3 years</span><strong id="three-year">—</strong></div></div>
+          <h3>Cost components</h3><div id="lines"></div>
+          <div class="service-note" style="display:grid;gap:4px;margin-top:16px;padding:14px;border-left:3px solid #d99700;border-radius:8px;background:#fff6db;color:#5d4700;font-size:.81rem"><strong>What is the Secure Desktops service fee?</strong><span>OCI Secure Desktops is charged at <b>$20 per desktop per month</b>, with a minimum of 10 desktops. This is separate from compute and storage consumption.</span></div>
+          <div class="license-note"><strong>Licensing assumptions</strong><span>Windows is customer BYOL. Oracle Linux is included at no additional license cost. No Dedicated Virtual Hosts are included.</span></div><p class="notice" id="notice"></p>
+        </section>
+      </div>
+      <footer>Planning estimate only. Validate the final configuration and pricing in the Oracle Cloud Cost Estimator before customer sign-off.</footer>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

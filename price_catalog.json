@@ -1,0 +1,33 @@
+{
+  "currency": "USD",
+  "region_label": "Oracle global USD list price (shared VM, Windows BYOL)",
+  "hours_per_month": 730,
+  "secure_desktop_monthly": 20.0,
+  "block_volume_gb_monthly": 0.0255,
+  "block_volume_performance_vpu_gb_monthly": 0.0017,
+  "block_volume_vpus": 10,
+  "windows_license_per_desktop_monthly": 0.0,
+  "shapes": {
+    "VM.Standard.E5.Flex": {
+      "label": "AMD E5 Flex",
+      "ocpu_hourly": 0.03,
+      "memory_gb_hourly": 0.002,
+      "min_ocpus": 1,
+      "max_memory_per_ocpu": 64
+    },
+    "VM.Standard.E4.Flex": {
+      "label": "AMD E4 Flex",
+      "ocpu_hourly": 0.025,
+      "memory_gb_hourly": 0.0015,
+      "min_ocpus": 1,
+      "max_memory_per_ocpu": 64
+    },
+    "VM.Standard3.Flex": {
+      "label": "Intel Standard3 Flex — enter approved price before use",
+      "ocpu_hourly": 0.0,
+      "memory_gb_hourly": 0.0,
+      "min_ocpus": 1,
+      "max_memory_per_ocpu": 64
+    }
+  }
+}
