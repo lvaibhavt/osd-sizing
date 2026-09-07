@@ -4,13 +4,37 @@ A local planning dashboard for estimating an OCI Secure Desktops pool. It separa
 
 ## Run locally
 
+The tool uses only Python's built-in libraries. Install Python 3.9 or newer, download or clone this repository, then open a terminal in the downloaded `osd-sizing` folder.
+
+### macOS
+
 ```bash
 python3 app.py
 ```
 
-Open `http://127.0.0.1:5059`.
+### Linux
 
-No virtual environment or package installation is required; the tool uses only Python's built-in libraries. This avoids macOS shell-policy issues affecting the local `.venv` folder.
+```bash
+python3 app.py
+```
+
+### Windows
+
+Open PowerShell in the project folder and run:
+
+```powershell
+py app.py
+```
+
+If the `py` launcher is not installed, use:
+
+```powershell
+python app.py
+```
+
+For every platform, open `http://127.0.0.1:5059` after the server starts. Leave the terminal window open while using the calculator, and press `Control + C` to stop it.
+
+No virtual environment or package installation is required.
 
 ## Use the calculator
 
